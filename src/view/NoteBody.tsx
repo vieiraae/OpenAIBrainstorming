@@ -21,7 +21,7 @@ export function NoteBody(props: NoteBodyProps) {
 				autoAdjustHeight
 				onChange={(event) => setText(event.currentTarget.value)}
 				value={text}
-				placeholder={"Enter Text Here"}
+				placeholder={"Enter Text Here or click the light bulb to generate text with OpenAI"}
 			/>
 		</div>
 	);

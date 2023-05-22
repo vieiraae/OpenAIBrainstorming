@@ -100,6 +100,15 @@ export function NoteSpace(props: NoteSpaceProps) {
 						);
 					};
 
+					const onLightbulb = () => {
+						model.GenerateText(
+							note.id,
+							props.author.userId,
+							props.author.userName,
+							Date.now(),
+						);
+					};
+
 					const onLike = () => {
 						model.LikeNote(note.id, props.author);
 					};
@@ -126,6 +135,7 @@ export function NoteSpace(props: NoteSpaceProps) {
 							key={note.id}
 							text={note.text}
 							setPosition={setPosition}
+							onLightbulb={onLightbulb}
 							onLike={onLike}
 							getLikedUsers={getLikedUsers}
 							onDelete={onDelete}

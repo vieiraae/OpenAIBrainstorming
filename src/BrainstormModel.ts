@@ -21,6 +21,12 @@ export type BrainstormModel = Readonly<{
 		lastEditedName: string,
 		lastEditedTime: number,
 	): void;
+	GenerateText(
+		noteId: string,
+		lastEditedId: string,
+		lastEditedName: string,
+		lastEditedTime: number,
+	): void;
 	SetNoteColor(noteId: string, noteColor: string): void;
 	LikeNote(noteId: string, author: AzureMember): void;
 	GetNoteLikedUsers(noteId: string): AzureMember[];
@@ -30,7 +36,7 @@ export type BrainstormModel = Readonly<{
 	removeChangeListener(listener: () => void): void;
 }>;
 
-export function createBrainstormModel(fluid: IFluidContainer): BrainstormModel {
+export function  createBrainstormModel(fluid: IFluidContainer): BrainstormModel {
 	// Global sharedMap that stores attributes of all the notes.
 	// The sharedMap can be updated by any user connected to the session
 	const sharedMap: ISharedMap = fluid.initialObjects.map as SharedMap;
@@ -66,6 +72,85 @@ export function createBrainstormModel(fluid: IFluidContainer): BrainstormModel {
 			userName: lastEditedName,
 			time: lastEditedTime,
 		});
+	};
+
+	const GenerateText = async (
+		noteId: string,
+		lastEditedId: string,
+		lastEditedName: string,
+		lastEditedTime: number,
+	) => {
+		var prompt = "You are part of a team that is brainstorming on ideas. You should identify one idea and provide an output entirely in JSON format with a 'name' and 'description'. Ideas already on the list: \n";
+		var notesTextArray = Array.from(sharedMap.keys())
+					// Only look at keys which represent if a note exists or not
+					.filter((key: String) => key.includes(c_NoteIdPrefix))
+					// Modify the note ids to not expose the prefix
+					.map((noteIdWithPrefix) => noteIdWithPrefix.substring(c_NoteIdPrefix.length))
+					// Remove notes which are incomplete or deleted
+					.filter((noteId) => IsCompleteNote(noteId) && !IsDeletedNote(noteId));
+		if (notesTextArray != null) {
+			for ( var i = 0; i < notesTextArray.length; i++ ) {
+				var text = sharedMap.get(c_TextPrefix + notesTextArray[i]);
+				if (text != null && text.length > 0) {
+					if (text.indexOf(":") > 0) text = text.substring(0, text.indexOf(":"));
+					prompt += i + ". " + text + "\n";
+				}
+			}	
+		}
+
+		const axios = require('axios');  
+
+
+
+		const request = {
+			"prompt": prompt,
+			"max_tokens": 600,
+			"temperature": 0.8,
+			"frequency_penalty": 0,
+			"presence_penalty": 0,
+			"top_p": 1,
+			"best_of": 1,
+			"stop": null
+		}			
+
+		try
+		{
+			console.log("Azure OpenAI resquest:\n" + JSON.stringify(request));
+
+			let response = await axios(
+				{
+					method: 'post',
+					url: 'https://azure-apim-lab.azure-api.net/oepnapi/completions?api-version=2022-12-01',
+					data: request,
+					headers:
+					{
+						"Content-Type": "application/json"
+					}
+				}
+			);
+	
+			console.log("Azure OpenAI response:\n" + response.data.choices[0].text);
+			var idea = JSON.parse(response.data.choices[0].text);
+
+			// update the note's text in sharedMap			
+			sharedMap.set(c_TextPrefix + noteId, idea.name + ': 🤖 ' + idea.description);
+			// update the note's last edited author name and timestamp
+			// WARNING: sharedMap does not preserve object references in the DDS map the same way it would be in a conventional map data structure.
+			// Hence, instead of storing the entire AzureMember object, we are only storing the necessary primitive data types metadata.
+			sharedMap.set(c_LastEditedPrefix + noteId, {
+				userId: lastEditedId,
+				userName: lastEditedName,
+				time: lastEditedTime,
+			});
+
+		}
+		catch (err) 
+		{
+			console.log(err);
+		}
+
+		
+
 	};
 
 	const SetNoteColor = (noteId: string, noteColor: string) => {
@@ -128,6 +213,8 @@ export function createBrainstormModel(fluid: IFluidContainer): BrainstormModel {
 		},
 
 		SetNoteText,
+
+		GenerateText,
 
 		SetNoteColor,
 

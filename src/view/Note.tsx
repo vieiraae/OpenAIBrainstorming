@@ -13,6 +13,7 @@ export type NoteProps = Readonly<{
 	id: string;
 	currentUser: AzureMember;
 	setPosition: (position: Position) => void;
+	onLightbulb: () => void;
 	onLike: () => void;
 	getLikedUsers: () => AzureMember[];
 	onDelete: () => void;

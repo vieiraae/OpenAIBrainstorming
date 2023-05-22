@@ -65,7 +65,7 @@ export function Header(props: HeaderProps) {
 						root: { alignSelf: "center", marginBottom: 6, marginRight: 16 },
 					}}
 				>
-					Let's Brainstorm
+					 💡 Brainstorming Copilot 🤖 
 				</Text>
 			),
 		},

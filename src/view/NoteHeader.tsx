@@ -82,6 +82,24 @@ const HeaderComponent = (props: NoteProps) => {
 
 	const farItems: ICommandBarItemProps[] = [
 		{
+			key: "completion",
+			onClick: props.onLightbulb,
+			iconProps: {
+				iconName: "Lightbulb",
+			},
+			buttonStyles: likesButtonStyle,
+			commandBarButtonAs: (props) => {
+				return (
+					<TooltipHost
+						directionalHint={DirectionalHint.topAutoEdge}
+						styles={tooltipHostStyle}
+					>
+						<CommandBarButton {...(props as any)} />
+					</TooltipHost>
+				);
+			},
+		},
+		{
 			key: "likes",
 			onClick: props.onLike,
 			text: props.numLikesCalculated.toString(),
