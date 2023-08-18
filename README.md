@@ -4,11 +4,15 @@ This sample uses the [Fluid Framework](https://fluidframework.com/) and OpenAI t
 The App enables users to collaborate in real-time on a digital whiteboard 📝. When the user hit the lamp 💡 the existing ideas and some groundings are composed in a prompt and then the completion result is displayed so that the user can accept, tweak or retry.
 Really intuitive and the possibilities are endless!
 
-![architecture and sample use cases](brainstorming-copilot.png)
+![Architecture and flow](brainstorming-copilot.gif)
 
 Azure API Management mediates and protects the OpenAI key and API's. Since it's a React App with client side components you don't want to call the OpenAI API directly to avoid exposing the key.
 
 This sample is a fork from the brainstorm App available in the [Fluid Examples](https://github.com/Microsoft/FluidExamples) repo
+
+## Sample use cases
+
+![Sample use cases](brainstorming-copilot.png)
 
 ## Quick start
 
